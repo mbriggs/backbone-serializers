@@ -11,8 +11,7 @@ module.exports = function (grunt) {
   // configurable paths
   var yeomanConfig = {
     name: 'backbone.serializers',
-    src: 'src',
-    dist: 'dist'
+    src: 'src'
   };
 
   try {
@@ -21,63 +20,7 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     yeoman: yeomanConfig,
-    watch: {
-      livereload: {
-        files: [
-          '<%= yeoman.src %>/{,*/}*.html',
-          '{.tmp,<%= yeoman.src %>}/styles/{,*/}*.css',
-          '{.tmp,<%= yeoman.src %>}/scripts/{,*/}*.js',
-          '<%= yeoman.src %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
-        ],
-        tasks: ['livereload']
-      }
-    },
-    connect: {
-      options: {
-        port: 9000,
-        // Change this to '0.0.0.0' to access the server from outside.
-        hostname: 'localhost'
-      },
-      livereload: {
-        options: {
-          middleware: function (connect) {
-            return [
-              lrSnippet,
-              mountFolder(connect, '.tmp'),
-              mountFolder(connect, yeomanConfig.src)
-            ];
-          }
-        }
-      },
-      test: {
-        options: {
-          middleware: function (connect) {
-            return [
-              mountFolder(connect, '.tmp'),
-              mountFolder(connect, 'test')
-            ];
-          }
-        }
-      }
-    },
-    open: {
-      server: {
-        url: 'http://localhost:<%= connect.options.port %>'
-      }
-    },
-    clean: {
-      dist: {
-        files: [{
-          dot: true,
-          src: [
-            '.tmp',
-            '<%= yeoman.dist %>/*',
-            '!<%= yeoman.dist %>/.git*'
-          ]
-        }]
-      },
-      server: '.tmp'
-    },
+
     jshint: {
       options: {
         jshintrc: '.jshintrc'
@@ -93,71 +36,32 @@ module.exports = function (grunt) {
         singleRun: true
       }
     },
-    concat: {
-      dist: {
-        files: {
-          '<%= yeoman.dist %>/<%= yeoman.name %>.js': [
-            'build/banner.js',
-            'build/start.js',
 
-            'src/class.js',
-
-            'build/start.js',
-            'src/backbone.serializer.js',
-            'build/middle.js',
-            'src/backbone.deserializer.js',
-            'build/end.js',
-
-            'build/end.js'
-          ]
-        }
+    preprocess: {
+      js: {
+        src: 'build.js',
+        dest: '<%= yeoman.name %>.js'
       }
     },
     uglify: {
       dist: {
         files: {
-          '<%= yeoman.dist %>/<%= yeoman.name %>.min.js': [
-            '<%= yeoman.dist %>/<%= yeoman.name %>.js'
+          '<%= yeoman.name %>.min.js': [
+            '<%= yeoman.name %>.js'
           ]
         }
-      }
-    },
-    copy: {
-      dist: {
-        files: [{
-          expand: true,
-          dot: true,
-          cwd: '<%= yeoman.src %>',
-          dest: '<%= yeoman.dist %>',
-          src: [
-          ]
-        }]
       }
     }
   });
 
-  grunt.renameTask('regarde', 'watch');
-
-  grunt.registerTask('server', [
-    'clean:server',
-    'livereload-start',
-    'connect:livereload',
-    'open',
-    'watch'
-  ]);
-
   grunt.registerTask('test', [
-    'clean:server',
-    'connect:test',
     'karma'
   ]);
 
   grunt.registerTask('build', [
-    'clean:dist',
     'test',
-    'concat',
-    'copy',
-    'uglify',
+    'preprocess:js',
+    'uglify'
   ]);
 
   grunt.registerTask('default', ['build']);
