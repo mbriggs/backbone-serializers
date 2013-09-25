@@ -1,9 +1,7 @@
-// @include ./banner.js
-
 ;(function(Backbone, _){
   "use strict";
 
-// @include src/class.js
+// @include src/errors.js
   ;(function(){
 // @include src/backbone.serializer.js
   }());

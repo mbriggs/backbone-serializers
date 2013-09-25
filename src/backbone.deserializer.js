@@ -1,16 +1,16 @@
-var noAttrsError = new Error("A deserializer without attributes will not be terribly effective!");
-var noModelError = new Error("A deserializer must have a model or a collection to instanciate");
+/* global EmptyAttrsError NoModelError */
 
-Backbone.Deserializer = Class.extend({
+Backbone.Deserializer = Backbone.Class.extend({
+  __name__: 'Deserializer',
   attributes: [],
   relations: {},
   deserializers: {},
 
   constructor: function(){
-    Class.prototype.constructor.apply(this, arguments);
+    this.initialize.apply(this, arguments);
 
-    if( emptyAttrsOn(this) ) throw noAttrsError;
-    if( missingRequiredAttrsOn(this) ) throw noModelError;
+    if( emptyAttrsOn(this) ) throw new EmptyAttrsError('deserializer');
+    if( missingRequiredAttrsOn(this) ) throw new NoModelError();
 
     this.__whitelist = buildWhitelist(this);
     instanciateAll(this.deserializers)

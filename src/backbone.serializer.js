@@ -1,14 +1,14 @@
-var emptyAttrsError = new Error("a serializer requires some attributes to be useful");
+/*global EmptyAttrsError */
 
-Backbone.Serializer = Class.extend({
+Backbone.Serializer = Backbone.Class.extend({
   attributes: [],
   relations: [],
   serializers: [],
 
   constructor: function(){
-    Class.prototype.constructor.apply(this, arguments);
+    this.initialize.apply(this, arguments);
 
-    if( this.hasEmptyWhitelist() ) throw emptyAttrsError;
+    if( this.hasEmptyWhitelist() ) throw new EmptyAttrsError('serializer');
     this.instanciateSerializers();
     this.__whitelist = this.buildWhitelist();
   },
@@ -76,4 +76,3 @@ Backbone.Serializer = Class.extend({
 
   }
 });
-

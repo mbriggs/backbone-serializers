@@ -1,34 +1,30 @@
-//       ___            _    _
-//      / __\ __ _  ___| | _| |__   ___  _ __   ___
-//     /__\/// _` |/ __| |/ / '_ \ / _ \| '_ \ / _ \
-//    / \/  \ (_| | (__|   <| |_) | (_) | | | |  __/
-//    \_____/\__,_|\___|_|\_\_.__/ \___/|_| |_|\___|
-//
-//     __           _       _ _
-//    / _\ ___ _ __(_) __ _| (_)_______ _ __ ___
-//    \ \ / _ \ '__| |/ _` | | |_  / _ \ '__/ __|
-//    _\ \  __/ |  | | (_| | | |/ /  __/ |  \__ \
-//    \__/\___|_|  |_|\__,_|_|_/___\___|_|  |___/
-
-
 ;(function(Backbone, _){
   "use strict";
 
-var Class = function(){this.initialize.apply(this, arguments)};
-Class.prototype.initialize = function(){};
-Class.extend = Backbone.Model.extend;
-  ;(function(){
-var emptyAttrsError = new Error("a serializer requires some attributes to be useful");
+var EmptyAttrsError = Backbone.Error.extend({
+  name: 'EmptyAttrsError',
 
-Backbone.Serializer = Class.extend({
+  initialize: function(type){
+    this.message = "A "+ type +" requires some attributes to be useful"
+  }
+});
+
+var NoModelError = Backbone.Error.extend({
+  name: 'NoModelError',
+  message: "A deserializer must have a model or a collection to instanciate"
+});
+  ;(function(){
+/*global EmptyAttrsError */
+
+Backbone.Serializer = Backbone.Class.extend({
   attributes: [],
   relations: [],
   serializers: [],
 
   constructor: function(){
-    Class.prototype.constructor.apply(this, arguments);
+    this.initialize.apply(this, arguments);
 
-    if( this.hasEmptyWhitelist() ) throw emptyAttrsError;
+    if( this.hasEmptyWhitelist() ) throw new EmptyAttrsError('serializer');
     this.instanciateSerializers();
     this.__whitelist = this.buildWhitelist();
   },
@@ -97,23 +93,22 @@ Backbone.Serializer = Class.extend({
   }
 });
 
-
   }());
 
   ;(function(){
-var noAttrsError = new Error("A deserializer without attributes will not be terribly effective!");
-var noModelError = new Error("A deserializer must have a model or a collection to instanciate");
+/* global EmptyAttrsError NoModelError */
 
-Backbone.Deserializer = Class.extend({
+Backbone.Deserializer = Backbone.Class.extend({
+  __name__: 'Deserializer',
   attributes: [],
   relations: {},
   deserializers: {},
 
   constructor: function(){
-    Class.prototype.constructor.apply(this, arguments);
+    this.initialize.apply(this, arguments);
 
-    if( emptyAttrsOn(this) ) throw noAttrsError;
-    if( missingRequiredAttrsOn(this) ) throw noModelError;
+    if( emptyAttrsOn(this) ) throw new EmptyAttrsError('deserializer');
+    if( missingRequiredAttrsOn(this) ) throw new NoModelError();
 
     this.__whitelist = buildWhitelist(this);
     instanciateAll(this.deserializers)
